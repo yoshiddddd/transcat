@@ -26,6 +26,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"transcat/flags"
 )
 
 
@@ -40,11 +41,19 @@ examples and usage of using your application. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Args: cobra.ArbitraryArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		version, _ := cmd.Flags().GetBool("version")
-		if version {
-			fmt.Println("version 0.1.0")
-			return
+		flags.CheckFlag(cmd)
+		
+		//ここは引数が一つの時のみにしている
+		if len(args) == 1 {
+			filename := args[0]
+			content, err := os.ReadFile(filename)
+			if err != nil {
+				fmt.Printf("Error reading file %s: %v\n", filename, err)
+				os.Exit(1)
+			}
+			fmt.Print(string(content))
 		}
 	},
 }
@@ -68,7 +77,6 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 	// Add version flag
 	rootCmd.Flags().BoolP("version", "v", false, "Print the version number")
 }
